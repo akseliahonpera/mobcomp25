@@ -45,78 +45,37 @@ import java.time.format.TextStyle
 
 @Composable
 fun Home(navController:NavController){
-    Modifier.padding(30.dp)
-    val payloadtext = remember {
-        mutableStateOf(TextFieldValue())
-    }
 
-    val butcol = remember {mutableStateOf(Color.Yellow) }//alustetaan keltaiseksi
-    val butcontent = remember {mutableStateOf("Ich bin nappen") }//alustetaan sana
-Column (verticalArrangement = Arrangement.Center,
+Column (
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier.fillMaxSize()
 ){
-        val Kotiruututeksti = "Olet kotona"
-        Text(Kotiruututeksti,
-
+        Text(
+            text = "Olet kotona",
             fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontSize = 30.sp
         )
         Spacer(Modifier.width(20.dp))
             Button(
                 modifier = Modifier
                     .clip(RoundedCornerShape(5.dp))
-                    .background(butcol.value),
-                    onClick = { if(butcol.value==Color.Yellow){
-                        butcol.value = Color.Black
-                        butcontent.value = "olen nappi"
-                        }
-                              else{
-                                  butcol.value = Color.Yellow
-                                  butcontent.value = "ich bin nappen"
-                              }},
-                    colors = ButtonDefaults.buttonColors(Color.Transparent)
-            )
+                    .background(color = Color.Gray)
+                    .height(50.dp),
+                    onClick = {
+                        navController.navigate("newNote")
+
+                    }
+                        )
+
             {
-                    Text(text = butcontent.value,
-                    color = Color.Gray,
-                    fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold
-                )
+                Text(text = "Write a note",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .fillMaxWidth(),
+                    fontSize = 30.sp
+                    )
                 }
-
-    LazyRow (
-        Modifier
-            .padding(10.dp)
-            .background(Color.Cyan)
-            .height(250.dp)
-    )
-
-    {
-        item {
-        Image(painter = painterResource(id = R.drawable.placeholder),
-            contentDescription = "placeholder image",
-            modifier = Modifier
-                .size(500.dp)
-                .clip(RoundedCornerShape(50.dp)))
-
-            Spacer(modifier = Modifier.size(30.dp))
-        }
-        item { Image(painter = painterResource(id = R.drawable.placeholder),
-            contentDescription = "placeholder image",
-            modifier = Modifier
-                .size(500.dp))
-            Spacer(modifier = Modifier.size(30.dp))
-        }
-        item{
-        Image(painter = painterResource(id = R.drawable.placeholder),
-            contentDescription = "placeholder image",
-            modifier = Modifier
-                .size(500.dp))
-            Spacer(modifier = Modifier.size(30.dp))
-        }
-    }
-    Spacer(modifier = Modifier.size(30.dp))
 
     LazyColumn(
         Modifier
@@ -133,42 +92,6 @@ Column (verticalArrangement = Arrangement.Center,
         item {
             Text(text = "Esine1")
         }
-        item { 
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
         item {
             Text(text = "Esine1")
         }
@@ -227,7 +150,10 @@ Column (verticalArrangement = Arrangement.Center,
             Text(text = "Esine1")
         }
 
-}
+
+    }
+
+
 
 
 

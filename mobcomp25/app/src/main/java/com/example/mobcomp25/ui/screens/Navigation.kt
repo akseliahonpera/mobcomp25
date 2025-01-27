@@ -10,7 +10,7 @@ import androidx.navigation.compose.rememberNavController
 fun  Navigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "newNote"){
+    NavHost(navController = navController, startDestination = "home"){
         composable("home") {
             Home(navController)
         }
