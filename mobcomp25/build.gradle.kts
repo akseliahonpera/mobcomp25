@@ -2,4 +2,6 @@
 plugins {
     id("com.android.application") version "8.2.1" apply false
     id("org.jetbrains.kotlin.android") version "1.9.0" apply false
+    // Kotlin serialization plugin for type safe routes and navigation arguments
+    kotlin("plugin.serialization") version "1.9.0"
 }

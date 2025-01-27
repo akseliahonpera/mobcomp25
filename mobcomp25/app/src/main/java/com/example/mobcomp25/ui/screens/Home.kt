@@ -38,12 +38,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.mobcomp25.R
 import java.time.format.TextStyle
 
 
 @Composable
-fun Home(){
+fun Home(navController:NavController){
     Modifier.padding(30.dp)
     val payloadtext = remember {
         mutableStateOf(TextFieldValue())

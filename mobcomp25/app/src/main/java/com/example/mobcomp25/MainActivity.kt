@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mobcomp25.ui.screens.Home
+import com.example.mobcomp25.ui.screens.Navigation
 import com.example.mobcomp25.ui.theme.Mobcomp25Theme
 /*
 Requirements
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Home()
+                    Navigation()
                 }
             }
         }
