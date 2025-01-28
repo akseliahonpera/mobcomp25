@@ -40,11 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mobcomp25.R
+import com.example.mobcomp25.data.AppDatabase
 import java.time.format.TextStyle
 
 
 @Composable
-fun Home(navController:NavController){
+fun Home(navController:NavController, db:AppDatabase){
 
 Column (
     horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,72 +84,6 @@ Column (
             .background(color = Color.LightGray)
     ){
 
-        item{
-            Text(text = "Esine1")
-        }
-        item{
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
-        item {
-            Text(text = "Esine1")
-        }
 
 
     }

@@ -10,18 +10,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.mobcomp25.data.DataBaseHost
 import com.example.mobcomp25.ui.screens.Home
 import com.example.mobcomp25.ui.screens.Navigation
 import com.example.mobcomp25.ui.theme.Mobcomp25Theme
-/*
-Requirements
-At least one custom image (1p)
-At least 2 different styles of text (1p)
-Scrolling and enough visual elements to need it (1p)
-At least one clickable element that creates a visible change (2p)
 
-
- */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +25,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Navigation()
+                    if(this==null){
+                        System.out.println("contexti on nulli");
+                    }
+                    val db = DataBaseHost.getDataBase(this) // testi1
+                    if(db==null){
+                        System.out.println("db on nulli");
+                    }
+
+                    Navigation(db) //pass db as parameter
                 }
             }
         }
