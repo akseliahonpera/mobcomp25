@@ -29,7 +29,7 @@ fun  NewNote(navController:NavController,db: AppDatabase){
 
     var noteString by remember { mutableStateOf("")}
     val noteDao = db.noteDao()
-    val coroutineScope = rememberCoroutineScope() // shitgpt gave this advice
+    val coroutineScope = rememberCoroutineScope() // shitgpt gave this advice, check if actually usable
     LazyColumn(
         Modifier
             .padding(10.dp)
@@ -66,9 +66,10 @@ fun  NewNote(navController:NavController,db: AppDatabase){
 
             Button(onClick = {
                 coroutineScope.launch{
-                if(noteString.isNotBlank()){
+                if(noteString.isNotBlank()){ //lets not save empty strings
                     val newNote = Note(noteContents = noteString)
                     noteDao.insertNote(newNote)
+                    noteString = "" //clear textfield after save
                 }
             }}
             )

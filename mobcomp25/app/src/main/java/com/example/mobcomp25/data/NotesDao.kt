@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotesDao {
     @Query("SELECT * FROM notes")
-    fun getAll(): Flow<List<Note>> //päästään esittään nämä home ruudussa
+    fun getAll(): Flow<List<Note>> //päästään esittään nämä home ruudussa, selvitä onko flow vai iha lista wörtti
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note:Note)

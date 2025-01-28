@@ -8,5 +8,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "notes")
 data class Note(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "note_contents") val noteContents: String?
+    @ColumnInfo(name = "note_contents") val noteContents: String
 )
