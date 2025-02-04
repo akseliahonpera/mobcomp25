@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
@@ -40,16 +42,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.LocalPlatformContext
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
+import coil3.compose.rememberAsyncImagePainter
+import coil3.compose.rememberConstraintsSizeResolver
+import coil3.request.ImageRequest
 import com.example.mobcomp25.R
 import com.example.mobcomp25.data.AppDatabase
 
 @Composable
 fun Home(navController:NavController, db:AppDatabase){
- //   val noteContents : List<Note> by remember {
- //       mutableStateOf(listOf()) }
-    val notes = db.noteDao().getAll().collectAsState(initial = emptyList()) //use collectasstate() to parse data into list format
-Column (
+
+    val notes by db.noteDao().getAll().collectAsState(initial = emptyList()) //use collectasstate() to parse data into list format
+   // val notes by notesFlow.collectAsState(initial = emptyList())
+    Column (
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier.fillMaxSize()
 ){
@@ -78,47 +89,37 @@ Column (
                     )
                 }
     Spacer(modifier = Modifier.size(30.dp))
-    LazyRow (
-        Modifier
-            .padding(10.dp)
-            .background(Color.Cyan)
-            .height(250.dp)
-    )
 
-    {
-        item {
-            Image(painter = painterResource(id = R.drawable.placeholder),
-                contentDescription = "placeholder image",
-                modifier = Modifier
-                    .size(500.dp)
-                    .clip(RoundedCornerShape(50.dp)))
 
-            Spacer(modifier = Modifier.size(30.dp))
-        }
-        item { Image(painter = painterResource(id = R.drawable.placeholder),
-            contentDescription = "placeholder image",
-            modifier = Modifier
-                .size(500.dp))
-            Spacer(modifier = Modifier.size(30.dp))
-        }
-        item{
-            Image(painter = painterResource(id = R.drawable.placeholder),
-                contentDescription = "placeholder image",
-                modifier = Modifier
-                    .size(500.dp))
-            Spacer(modifier = Modifier.size(30.dp))
-        }
-    }
-    Spacer(modifier = Modifier.size(30.dp))
 
     LazyColumn(
         Modifier
             .padding(10.dp)
             .background(color = Color.LightGray)
     ){
-    items(items = notes.value){note-> //list stuff in lazycolumn
+    items(items = (notes)){note-> //list stuff in lazycolumn
         Text(text = note.noteContents)  //lorki merkkijonot note-olioista
+        //Show image here
+        //AsyncImage(model = note.imageUri, contentDescription = "gaagaaguuguu")
+        if (note.imageUri.isNotEmpty()) {
+            AsyncImage(
+                model = note.imageUri,
+                contentDescription = "Note Image"
+            )
+        }
     }
     }
+/*
+        LazyColumn(
+            Modifier
+                .padding(10.dp)
+                .background(color = Color.LightGray)
+        ){
+            items(items = (notes)){note-> //list stuff in lazycolumn
+                Text(text = note.noteContents)  //lorki merkkijonot note-olioista
+                //Show image here
+                AsyncImage(model = note.imageUri, contentDescription = "gaagaaguuguu")
+            }
+        }*/
 }
 }

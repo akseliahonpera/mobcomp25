@@ -1,6 +1,7 @@
 package com.example.mobcomp25.data
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,13 +26,11 @@ object DataBaseHost {
                         AppDatabase::class.java, "NoteDB"
                     ).build()
                     if(dbInstance==null){
-                        println("dbInstance oli nulli");
+                        Log.i("paskaa","db kusahti")
                     }
 
                 }
             }
-
-        System.out.println("iis datapase2");
         return dbInstance!!
     }
 }
