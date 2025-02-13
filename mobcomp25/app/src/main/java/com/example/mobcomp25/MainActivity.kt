@@ -75,6 +75,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun requestNotificationsPermission(){
+        when{
+            ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED->{
+                Log.i("tonttu","Permission already given")
+            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )->
+                Log.i("tonttu","Show camera permissions")
+            else -> requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,5 +109,6 @@ class MainActivity : ComponentActivity() {
         }
       //  requestCameraPermission()
       //  requestImagesPermission()
+        requestNotificationsPermission()
     }
 }
