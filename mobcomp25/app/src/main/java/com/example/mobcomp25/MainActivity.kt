@@ -8,7 +8,11 @@ https://stackoverflow.com/questions/68046535/lazycolumn-and-mutable-list-how-to-
 https://developer.android.com/codelabs/basic-android-kotlin-compose-persisting-data-room#7
  */
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -22,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.mobcomp25.data.DataBaseHost
 import com.example.mobcomp25.ui.screens.Home
@@ -92,7 +97,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is not in the Support Library.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "notification_template_name"
+            val descriptionText = "notificationdescription_template"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("notificationChannel_id", name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -109,6 +129,10 @@ class MainActivity : ComponentActivity() {
         }
       //  requestCameraPermission()
       //  requestImagesPermission()
+
+
         requestNotificationsPermission()
+        createNotificationChannel()
+
     }
 }

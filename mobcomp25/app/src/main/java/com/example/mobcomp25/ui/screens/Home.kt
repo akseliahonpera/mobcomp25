@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -54,22 +55,32 @@ import coil3.compose.rememberConstraintsSizeResolver
 import coil3.request.ImageRequest
 import com.example.mobcomp25.R
 import com.example.mobcomp25.data.AppDatabase
+import com.example.mobcomp25.services.NotificationHandler
 
 @Composable
 fun Home(navController:NavController, db:AppDatabase){
 
     val notes by db.noteDao().getAll().collectAsState(initial = emptyList()) //use collectasstate() to parse data into list format
    // val notes by notesFlow.collectAsState(initial = emptyList())
+    val appContext = LocalContext.current.applicationContext
     Column (
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier.fillMaxSize()
+
 ){
+
+
         Text(
             text = "Olet kotona",
             fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.Bold,
             fontSize = 30.sp
         )
+        Spacer(Modifier.width(20.dp))
+        Button(onClick = { NotificationHandler(appContext)
+            .showNotification("testi","testileipä") }) {
+            Text(text = "Trigger notification")
+        }
         Spacer(Modifier.width(20.dp))
             Button(
                 modifier = Modifier
@@ -109,6 +120,7 @@ fun Home(navController:NavController, db:AppDatabase){
         }
     }
     }
+
 /*
         LazyColumn(
             Modifier

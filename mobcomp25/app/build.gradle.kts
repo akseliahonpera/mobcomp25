@@ -128,4 +128,7 @@ dependencies {
     // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${camerax_version}")
 
+    implementation("androidx.compose.material3:material3:1.2.0-alpha12")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.27.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
 }
