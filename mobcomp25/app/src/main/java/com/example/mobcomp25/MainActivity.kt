@@ -97,6 +97,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun requestAlarmPermission(){
+        when{
+            ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.SCHEDULE_EXACT_ALARM
+            ) == PackageManager.PERMISSION_GRANTED->{
+                Log.i("tonttu","Permission already given")
+            }
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                android.Manifest.permission.SCHEDULE_EXACT_ALARM
+            )->
+                Log.i("tonttu","Show camera permissions")
+            else -> requestPermissionLauncher.launch(android.Manifest.permission.SCHEDULE_EXACT_ALARM)
+        }
+    }
+
     private fun createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is not in the Support Library.
@@ -130,7 +147,7 @@ class MainActivity : ComponentActivity() {
       //  requestCameraPermission()
       //  requestImagesPermission()
 
-
+        requestAlarmPermission()
         requestNotificationsPermission()
         createNotificationChannel()
 

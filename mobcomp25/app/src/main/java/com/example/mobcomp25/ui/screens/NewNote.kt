@@ -1,7 +1,10 @@
 package com.example.mobcomp25.ui.screens
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.Context
+import android.content.Intent
 import android.content.UriPermission
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,8 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,17 +32,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.AlarmManagerCompat.setAlarmClock
+import androidx.core.app.AlarmManagerCompat.setExact
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.example.mobcomp25.data.AppDatabase
 import com.example.mobcomp25.data.Note
+import com.example.mobcomp25.services.AlarmReceiver
+import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonNull.content
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
-
+//https://developer.android.com/develop/ui/compose/components/time-pickers
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun  NewNote(navController:NavController,db: AppDatabase){
 
@@ -43,12 +60,69 @@ fun  NewNote(navController:NavController,db: AppDatabase){
     val coroutineScope = rememberCoroutineScope() // shitgpt gave this advice, check if actually usable
     var imgUri : String? = null
     val appContext = LocalContext.current.applicationContext
+    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+
 
     LazyColumn(
         Modifier
             .padding(10.dp)
     ) {
 
+        item{
+            if(showDatePicker){
+                DatePickerModalInput(onDateSelected = { date ->
+                    selectedDate = date
+                    showDatePicker = false
+
+                }, onDismiss = {
+                    showDatePicker = false
+                }
+                )
+            }
+            Button(onClick = {showDatePicker = true}) {
+                Text(text = "Pick date")
+            }
+
+            if(selectedDate!=null){
+                val date = Date(selectedDate!!)
+                val dateFormatted = SimpleDateFormat("dd, MM, yyyy", Locale.getDefault()).format(date)
+                Text(text = "Date:  $dateFormatted")
+            }else {
+                Text(text = "You have not chosen a date")
+            }
+
+        }
+
+        item {
+            if (showTimePicker) {
+                setTime(onConfirm = { time ->
+                    selectedTime = time
+                    showTimePicker = false
+                }, onDismiss = {
+                    showTimePicker = false
+                },
+                )
+            }
+            Button(onClick = {showTimePicker = true}) {
+                Text(text = "Pick time")
+            }
+            if (selectedTime != null) {
+                val cal = Calendar.getInstance()
+                cal.set(Calendar.HOUR_OF_DAY, selectedTime!!.hour)
+                cal.set(Calendar.MINUTE, selectedTime!!.minute)
+                cal.isLenient = false
+                val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+                Text("Selected time = ${formatter.format(cal.time)}")
+            } else {
+                Text("No time selected.")
+            }
+
+        }
         item {
             Text(text = "Write a new note",
                 fontSize = 30.sp
@@ -121,6 +195,13 @@ fun  NewNote(navController:NavController,db: AppDatabase){
                         noteDao.insertNote(newNote)
                         noteString = "" //clear textfield after save
                         imgUri = null
+
+                        alarm(context = appContext,
+                            selectedDate = selectedDate,
+                            selectedTime = selectedTime
+                        )
+
+
                         navController.popBackStack()
                     }
                 }}
@@ -146,3 +227,37 @@ fun saveImgToInternal(context: Context,uri: Uri): Uri {
     val file = File(context.filesDir,fName)
     return Uri.fromFile(file)
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+fun alarm(context: Context, selectedDate: Long?, selectedTime: TimePickerState?){
+    if(selectedDate==null ||selectedTime==null){
+        return; // no null alarms pls
+    }
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    //manager as alarmanager and cast
+    val calendar = Calendar.getInstance().apply {
+        timeInMillis = selectedDate
+        set(Calendar.HOUR_OF_DAY, selectedTime.hour)
+        set(Calendar.MINUTE, selectedTime.minute)
+    }
+    //time and date for the alarm
+    val alarmIntent = Intent(context, AlarmReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(
+        context,
+        0,
+        alarmIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+    /*
+    alarmManager.setAlarmClock(
+        AlarmManager.AlarmClockInfo(calendar.timeInMillis, pendingIntent),
+        pendingIntent
+    )*/
+    alarmManager.setExactAndAllowWhileIdle(
+        AlarmManager.RTC_WAKEUP,
+        calendar.timeInMillis,
+        pendingIntent
+    )
+
+}
+//https://developer.android.com/develop/background-work/services/alarms/schedule
