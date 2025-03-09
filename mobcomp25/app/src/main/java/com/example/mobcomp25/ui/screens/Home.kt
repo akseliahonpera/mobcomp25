@@ -55,12 +55,15 @@ import coil3.compose.rememberConstraintsSizeResolver
 import coil3.request.ImageRequest
 import com.example.mobcomp25.R
 import com.example.mobcomp25.data.AppDatabase
+import com.example.mobcomp25.data.DataBaseHost
+import com.example.mobcomp25.services.ApplicationServices
 import com.example.mobcomp25.services.NotificationHandler
 
 @Composable
-fun Home(navController:NavController, db:AppDatabase){
-
-    val notes by db.noteDao().getAll().collectAsState(initial = emptyList()) //use collectasstate() to parse data into list format
+fun Home(navController:NavController){
+    val db = ApplicationServices.getInstance()?.getDatabase()
+    //ei voi olla  nulli
+    val notes by db!!.noteDao().getAll().collectAsState(initial = emptyList()) //use collectasstate() to parse data into list format
    // val notes by notesFlow.collectAsState(initial = emptyList())
     val appContext = LocalContext.current.applicationContext
     Column (
@@ -76,25 +79,20 @@ fun Home(navController:NavController, db:AppDatabase){
             fontWeight = FontWeight.Bold,
             fontSize = 30.sp
         )
-        Spacer(Modifier.width(20.dp))
-        Button(onClick = { NotificationHandler(appContext)
-            .showNotification("testi","testileipä") }) {
-            Text(text = "Trigger notification")
-        }
+
         Spacer(Modifier.width(20.dp))
             Button(
                 modifier = Modifier
                     .clip(RoundedCornerShape(5.dp))
-                    .background(color = Color.Gray)
                     .height(50.dp),
                     onClick = {
                         navController.navigate("newNote")
                     }
                         )
             {
-                Text(text = "Write a note",
+                Text(text = "Tee muistiinpano",
                     modifier = Modifier
-                        .fillMaxSize()
+                            //        .fillMaxSize(),
                         .fillMaxWidth(),
                     fontSize = 30.sp
                     )

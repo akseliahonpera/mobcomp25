@@ -11,32 +11,15 @@ import com.example.mobcomp25.data.NoteRepoTest
 
 
 @Composable
-fun  Navigation(db: AppDatabase) {
+fun  Navigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "home"){
         composable("home") {
-            Home(navController, db)
+            Home(navController)
         }
         composable("newNote") {
-            NewNote(navController, db)
+            NewNote(navController)
         }
     }
 }
-
-
-/* Varmuuskopsu
-@Composable
-fun  Navigation(context: Context) {
-    val navController = rememberNavController()
-    val db = DataBaseHost.getDataBase(context)
-    NavHost(navController = navController, startDestination = "home"){
-        composable("home") {
-            Home(navController, db)
-        }
-        composable("newNote") {
-            NewNote(navController, db)
-        }
-    }
-}
- */

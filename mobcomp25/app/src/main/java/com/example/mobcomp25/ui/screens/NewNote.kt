@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,13 +24,17 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.AlarmManagerCompat.setAlarmClock
@@ -39,6 +44,7 @@ import coil3.compose.AsyncImage
 import com.example.mobcomp25.data.AppDatabase
 import com.example.mobcomp25.data.Note
 import com.example.mobcomp25.services.AlarmReceiver
+import com.example.mobcomp25.services.ApplicationServices
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
@@ -53,10 +59,12 @@ import java.util.Locale
 //https://developer.android.com/develop/ui/compose/components/time-pickers
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun  NewNote(navController:NavController,db: AppDatabase){
+fun  NewNote(navController:NavController){
+    val db = ApplicationServices.getInstance()?.getDatabase()
+    //ei voi olla  nulli
 
     var noteString by remember { mutableStateOf("")}
-    val noteDao = db.noteDao()
+    val noteDao = db!!.noteDao()
     val coroutineScope = rememberCoroutineScope() // shitgpt gave this advice, check if actually usable
     var imgUri : String? = null
     val appContext = LocalContext.current.applicationContext
@@ -72,6 +80,31 @@ fun  NewNote(navController:NavController,db: AppDatabase){
         Modifier
             .padding(10.dp)
     ) {
+        item {
+            Button(
+                onClick = { navController.navigate("home"){
+                    popUpTo("home"){
+                        inclusive = true
+                    }
+                } },
+                modifier = Modifier
+                    .height(50.dp)
+                    .width(200.dp)
+            )
+            {
+                Text(text = "Palaa kotiruutuun")
+            }
+        }
+        item {
+            Text(text = "Tee uusi muistiinpano",
+                fontStyle = FontStyle.Italic,
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp
+            )
+        }
+        item{
+            Text(text = "Aseta muistutus")
+        }
 
         item{
             if(showDatePicker){
@@ -85,7 +118,7 @@ fun  NewNote(navController:NavController,db: AppDatabase){
                 )
             }
             Button(onClick = {showDatePicker = true}) {
-                Text(text = "Pick date")
+                Text(text = "Valitse päivä")
             }
 
             if(selectedDate!=null){
@@ -109,7 +142,7 @@ fun  NewNote(navController:NavController,db: AppDatabase){
                 )
             }
             Button(onClick = {showTimePicker = true}) {
-                Text(text = "Pick time")
+                Text(text = "Valitse kellonaika")
             }
             if (selectedTime != null) {
                 val cal = Calendar.getInstance()
@@ -123,26 +156,8 @@ fun  NewNote(navController:NavController,db: AppDatabase){
             }
 
         }
-        item {
-            Text(text = "Write a new note",
-                fontSize = 30.sp
-            )
-        }
-        item {
-            Button(
-                onClick = { navController.navigate("home"){
-                    popUpTo("home"){
-                        inclusive = true
-                    }
-                } },
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(200.dp)
-            )
-            {
-                Text(text = "Palaa kotiruutuun")
-            }
-        }
+
+
         item{
             TextField(value = noteString, onValueChange = { noteString = it }
             ,modifier = Modifier
@@ -153,7 +168,7 @@ fun  NewNote(navController:NavController,db: AppDatabase){
 
         item{
             Button(onClick = { /*TODO*/ }) {
-                Text(text = "Take a photo _WIP")
+                Text(text = "Ota kuva")
             }
         }
         item {
@@ -182,7 +197,7 @@ fun  NewNote(navController:NavController,db: AppDatabase){
             Button(onClick = {
                 launcher.launch("image/*")
             }) {
-                Text(text = "Choose image from library")
+                Text(text = "Valitse kuva kirjastosta")
             }
         }
 
@@ -207,7 +222,7 @@ fun  NewNote(navController:NavController,db: AppDatabase){
                 }}
             )
             {
-                Text(text = "Save note")
+                Text(text = "Tallenna muistiinpano")
             }
         }
     }

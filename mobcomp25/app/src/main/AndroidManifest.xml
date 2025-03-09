@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Mobcomp25"
-        android:name=".services.NotificationApplication"
+        android:name=".services.ApplicationServices"
+
 
         tools:targetApi="31">
 

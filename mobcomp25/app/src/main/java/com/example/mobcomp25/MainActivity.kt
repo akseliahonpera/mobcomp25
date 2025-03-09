@@ -139,8 +139,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val db = DataBaseHost.getDataBase(this) // testi1
-                    Navigation(db) //pass db as parameter
+
+                    Navigation() //pass db as parameter
                 }
             }
         }

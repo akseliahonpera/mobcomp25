@@ -11,6 +11,7 @@ import com.example.mobcomp25.ui.screens.notification
 import kotlin.random.Random
 
 class NotificationHandler(private val context: Context) {
+    //notificationhandler initialization
     private val notificationManager = context.getSystemService(NotificationManager::class.java)
     private val notificationChannelID = "notification"
 
