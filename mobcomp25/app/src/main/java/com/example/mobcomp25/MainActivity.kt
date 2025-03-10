@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
       //  requestCameraPermission()
       //  requestImagesPermission()
 
-        requestAlarmPermission()
+   //     requestAlarmPermission()
         requestNotificationsPermission()
         createNotificationChannel()
 
