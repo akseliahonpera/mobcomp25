@@ -9,7 +9,7 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if(context!=null) {
             NotificationHandler(context)
-                .showNotification("Muistutus", "testileipä")
+                .showNotification("Muistioappi", "Käyppä kattoon että mitä pitää muistaa")
         }
     }
 }

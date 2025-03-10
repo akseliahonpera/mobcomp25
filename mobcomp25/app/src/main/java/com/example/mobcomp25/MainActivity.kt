@@ -46,39 +46,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestCameraPermission(){
-        when{
-            ContextCompat.checkSelfPermission(
-                    this,
-                android.Manifest.permission.CAMERA
-                    ) == PackageManager.PERMISSION_GRANTED->{
-                Log.i("tonttu","Permission already given")
-                    }
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                android.Manifest.permission.CAMERA
-            )->
-                Log.i("tonttu","Show camera permissions")
-            else -> requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-        }
-    }
-
-    private fun requestImagesPermission(){
-        when{
-            ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.READ_MEDIA_IMAGES
-            ) == PackageManager.PERMISSION_GRANTED->{
-                Log.i("tonttu","Permission already given")
-            }
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                android.Manifest.permission.READ_MEDIA_IMAGES
-            )->
-                Log.i("tonttu","Show camera permissions")
-            else -> requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
-        }
-    }
 
     private fun requestNotificationsPermission(){
         when{
@@ -97,22 +64,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestAlarmPermission(){
-        when{
-            ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.SCHEDULE_EXACT_ALARM
-            ) == PackageManager.PERMISSION_GRANTED->{
-                Log.i("tonttu","Permission already given")
-            }
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                this,
-                android.Manifest.permission.SCHEDULE_EXACT_ALARM
-            )->
-                Log.i("tonttu","Show camera permissions")
-            else -> requestPermissionLauncher.launch(android.Manifest.permission.SCHEDULE_EXACT_ALARM)
-        }
-    }
 
     private fun createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
@@ -144,11 +95,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-      //  requestCameraPermission()
-      //  requestImagesPermission()
 
-   //     requestAlarmPermission()
-        requestNotificationsPermission()
+  //      requestNotificationsPermission()
         createNotificationChannel()
 
     }

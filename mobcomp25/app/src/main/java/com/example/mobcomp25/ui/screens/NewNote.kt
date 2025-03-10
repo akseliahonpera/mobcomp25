@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.UriPermission
 import android.content.pm.PackageManager
+import android.health.connect.datatypes.units.Length
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.core.app.AlarmManagerCompat.setAlarmClock
 import androidx.core.app.AlarmManagerCompat.setExact
 import androidx.core.content.ContextCompat
@@ -165,7 +167,52 @@ fun  NewNote(navController:NavController){
     ////////////////////////lupa kirjaston käyttöön päättyy
 
     ////////////////////////lupa ilmoitusten käyttöön alkaa
+    val notifiCationsshowPermissionDialog = remember { mutableStateOf(false) }
+    if (notifiCationsshowPermissionDialog.value) {
+        AlertDialog(
+            onDismissRequest = { notifiCationsshowPermissionDialog.value = false },
+            title = { Text(text = "Notifications permission", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+            text = {
+                Text(
+                    "Permission to use notifications is needed for use of this functionality",
+                    fontSize = 16.sp
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        notifiCationsshowPermissionDialog.value = false
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", context.packageName, null)
+                        )
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(context, intent, null)
+                    }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        notifiCationsshowPermissionDialog.value = false
+                    }) {
+                    Text("Cancel")
+                }
+            },
+        )
+    }
+    val notifiCationspermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Lupa annettu", Toast.LENGTH_SHORT).show()
 
+        } else {
+            Toast.makeText(context, "Lupa evätty", Toast.LENGTH_SHORT).show()
+            notifiCationsshowPermissionDialog.value = true
+        }
+    }
     ////////////////////////lupa ilmoitusten käyttöön päättyy
 
     ////////////////////////lupa kameran käyttöön alkaa
@@ -300,6 +347,8 @@ fun  NewNote(navController:NavController){
                 cal.isLenient = false
                 val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
                 Text("Selected time = ${formatter.format(cal.time)}")
+
+
             } else {
                 Text("No time selected.")
             }
@@ -320,9 +369,14 @@ fun  NewNote(navController:NavController){
                     // Request a permission
                     permissionLauncher.launch(android.Manifest.permission.CAMERA)
                 }
+                
+
             }) {
                 Text(text = "Ota kuva")
             }
+            imgUri=newImageUri.toString()
+            previewImage(uri = newImageUri)
+        //    AsyncImage(model = newImageUri, contentDescription = null)
         }
         item {
 
@@ -342,11 +396,11 @@ fun  NewNote(navController:NavController){
                 }
             }
             // Open a specific media item using InputStream.
+            imageUriAddress?.let { previewImage(it) }
+          // AsyncImage(model = imageUriAddress, contentDescription = null, modifier = Modifier.padding(20.dp))
 
-            AsyncImage(model = imageUriAddress, contentDescription = null,
-                modifier = Modifier
-                    .padding(20.dp)
-            )
+
+
             Row {
 
 
@@ -380,10 +434,13 @@ fun  NewNote(navController:NavController){
                         noteString = "" //clear textfield after save
                         imgUri = null
 
-                        alarm(context = appContext,
-                            selectedDate = selectedDate,
-                            selectedTime = selectedTime
-                        )
+
+                            alarm(context = appContext,
+                                selectedDate = selectedDate,
+                                selectedTime = selectedTime
+                            )
+
+
 
 
                         navController.popBackStack()
@@ -395,6 +452,25 @@ fun  NewNote(navController:NavController){
             }
         }
     }
+
+
+    fun Context.createImageFile(): File {
+        // Create an image file name
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "JPEG_" + timeStamp + "_"
+        val image = File.createTempFile(
+            imageFileName, /* prefix */
+            ".jpg", /* suffix */
+            externalCacheDir      /* directory */
+        )
+        return image
+
+
+    }
+}
+@Composable
+fun previewImage(uri:Uri){
+    AsyncImage(model = uri, contentDescription = null)
 }
 
 fun saveImgToInternal(context: Context,uri: Uri): Uri {
@@ -413,10 +489,17 @@ fun saveImgToInternal(context: Context,uri: Uri): Uri {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-fun alarm(context: Context, selectedDate: Long?, selectedTime: TimePickerState?){
-    if(selectedDate==null ||selectedTime==null){
+fun alarm(context: Context, selectedDate: Long?, selectedTime: TimePickerState?) {
+    if (selectedDate == null || selectedTime == null) {
         return; // no null alarms pls
     }
+    if(PackageManager.PERMISSION_DENIED == ContextCompat.checkSelfPermission(context,android.Manifest.permission.POST_NOTIFICATIONS)){
+
+        Toast.makeText(context,"Ei o luppaa hälyjen laittoon, tallennetaan ilman muistutusta, asetukset->sovellukset",Toast.LENGTH_SHORT).show()
+        return
+    }
+
+
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     //manager as alarmanager and cast
     val calendar = Calendar.getInstance().apply {
@@ -442,7 +525,8 @@ fun alarm(context: Context, selectedDate: Long?, selectedTime: TimePickerState?)
         calendar.timeInMillis,
         pendingIntent
     )
-
+    Toast.makeText(context,"Muistutus asetettu ${calendar.time}", Toast.LENGTH_LONG).show() //esitetään graafinen palaute että muistutus asetettuc
+}
 
 //https://developer.android.com/develop/background-work/services/alarms/schedule
 
@@ -457,6 +541,6 @@ fun Context.createImageFile(): File {
         externalCacheDir      /* directory */
     )
     return image
-}
+
 
 }
