@@ -9,6 +9,7 @@ import android.content.UriPermission
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -74,7 +75,11 @@ fun  NewNote(navController:NavController){
     var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
     var showTimePicker by remember { mutableStateOf(false) }
 
+    var noteLocation : Pair<Double,Double>
+  //  var noteLocationString: String
 
+    noteLocation = Pair(0.0,0.0) //alustetaan nollaan
+  //  noteLocationString = noteLocation.toString()
 
     LazyColumn(
         Modifier
@@ -162,12 +167,12 @@ fun  NewNote(navController:NavController){
             TextField(value = noteString, onValueChange = { noteString = it }
             ,modifier = Modifier
                     .fillMaxWidth()
-                    .height(350.dp))
+                    .height(300.dp))
         }
 
 
         item{
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = {  navController.navigate("simple_camera")  }) {
                 Text(text = "Ota kuva")
             }
         }
@@ -194,10 +199,17 @@ fun  NewNote(navController:NavController){
                 modifier = Modifier
                     .padding(20.dp)
             )
+            Row {
+
+
             Button(onClick = {
                 launcher.launch("image/*")
             }) {
                 Text(text = "Valitse kuva kirjastosta")
+            }
+                Button(onClick = { }) {
+                    Text(text = "Lisää sijainti")
+                }
             }
         }
 
@@ -206,7 +218,7 @@ fun  NewNote(navController:NavController){
             Button(onClick = {
                 coroutineScope.launch{
                     if(noteString.isNotBlank()&&!imgUri.isNullOrEmpty()){ //lets not save empty strings
-                        val newNote = Note(noteContents = noteString, imageUri = imgUri!!)
+                        val newNote = Note(noteContents = noteString, imageUri = imgUri!!, location = noteLocation.toString())
                         noteDao.insertNote(newNote)
                         noteString = "" //clear textfield after save
                         imgUri = null

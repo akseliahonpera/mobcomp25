@@ -10,5 +10,6 @@ import androidx.room.PrimaryKey
 data class Note(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "note_contents") val noteContents: String,
-    @ColumnInfo(name = "image_uri") val imageUri: String
+    @ColumnInfo(name = "image_uri") val imageUri: String,
+    @ColumnInfo(name = "latitude_longitude") val location: String
 )

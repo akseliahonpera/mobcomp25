@@ -21,5 +21,9 @@ fun  Navigation() {
         composable("newNote") {
             NewNote(navController)
         }
+        composable("options") {
+            Options(navController)
+        }
+        composable("simple_camera") { SimpleCamera() }
     }
 }

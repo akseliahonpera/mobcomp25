@@ -24,7 +24,7 @@ object DataBaseHost {
                     dbInstance = Room.databaseBuilder(
                         context,
                         AppDatabase::class.java, "NoteDB"
-                    ).build()
+                    ).allowMainThreadQueries().build() //db n tyhjennystä varten
                     if(dbInstance==null){
                         Log.i("paskaa","db kusahti")
                     }
