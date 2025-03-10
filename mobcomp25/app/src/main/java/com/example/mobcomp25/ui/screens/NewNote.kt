@@ -1,5 +1,6 @@
 package com.example.mobcomp25.ui.screens
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.ContentResolver
@@ -58,6 +59,10 @@ import com.example.mobcomp25.data.AppDatabase
 import com.example.mobcomp25.data.Note
 import com.example.mobcomp25.services.AlarmReceiver
 import com.example.mobcomp25.services.ApplicationServices
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
@@ -89,13 +94,56 @@ fun  NewNote(navController:NavController){
     var selectedTime: TimePickerState? by remember { mutableStateOf(null) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    var noteLocation : Pair<Double,Double>
-  //  var noteLocationString: String
+    var noteLocation by remember { mutableStateOf<Pair<Double,Double>?>(null) }
+    var longitude = 0.0
+    var latitude = 0.0
 
-    noteLocation = Pair(0.0,0.0) //alustetaan nollaan
-  //  noteLocationString = noteLocation.toString()
+    val LocationshowLibraryPermissionDialog = remember { mutableStateOf(false) }
+    if (LocationshowLibraryPermissionDialog.value) {
+        AlertDialog(
+            onDismissRequest = { LocationshowLibraryPermissionDialog.value = false },
+            title = { Text(text = "Location permission", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+            text = {
+                Text(
+                    "Permission to access location is needed for use of this functionality",
+                    fontSize = 16.sp
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        LocationshowLibraryPermissionDialog.value = false
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", context.packageName, null)
+                        )
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(context, intent, null)
+                    }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        LocationshowLibraryPermissionDialog.value = false
+                    }) {
+                    Text("Cancel")
+                }
+            },
+        )
+    }
+    val LocationpermissionLauncherLibrary = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Lupa annettu", Toast.LENGTH_SHORT).show()
 
-
+        } else {
+            Toast.makeText(context, "Lupa evätty", Toast.LENGTH_SHORT).show()
+            LocationshowLibraryPermissionDialog.value = true
+        }
+    }
 
     //////////////kameran toiminnallisuuksia alkaa
     val file = context.createImageFile()
@@ -402,8 +450,6 @@ fun  NewNote(navController:NavController){
 
 
             Row {
-
-
             Button(onClick = {
 
                 val permissionCheckResult = ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_MEDIA_IMAGES)
@@ -418,7 +464,30 @@ fun  NewNote(navController:NavController){
             }) {
                 Text(text = "Valitse kuva kirjastosta")
             }
-                Button(onClick = { }) {
+                Button(onClick = {
+                    Log.i("Lokaatio","nappi painettu")
+                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    Log.i("Lokaatio","permissionCheckResult")
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        Log.i("Lokaatio","permission granted")
+                        getCurrentLocation(
+                            onGetCurrentLocationSuccess = {location ->
+                                Log.i("Lokaatio","success")
+                                noteLocation=location
+
+                            },
+                            onGetCurrentLocationFailed = {
+                                Log.i("Lokaatio","failure")
+                                Toast.makeText(context,"Sijainnin haku epäonnistui",Toast.LENGTH_SHORT)
+                            }, context = appContext
+
+                        )
+
+                    } else {
+                        // Request a permission
+                        LocationpermissionLauncherLibrary.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    }
+                }) {
                     Text(text = "Lisää sijainti")
                 }
             }
@@ -428,7 +497,23 @@ fun  NewNote(navController:NavController){
 
             Button(onClick = {
                 coroutineScope.launch{
-                    if(noteString.isNotBlank()&&!imgUri.isNullOrEmpty()){ //lets not save empty strings
+                    if(noteString.isNotBlank() || !imgUri.isNullOrEmpty()){ //lets have something to save
+
+                        if(selectedDate!=null && selectedTime!=null) {
+
+                           val calendar = Calendar.getInstance().apply {
+                               timeInMillis = selectedDate as Long
+                               set(Calendar.HOUR_OF_DAY, selectedTime!!.hour)
+                               set(Calendar.MINUTE, selectedTime!!.minute)
+                           }
+                           var notl = noteLocation.toString()
+                           Log.i("tallesnus","${notl}")
+                           print(noteLocation)
+
+                           noteString = noteString+ "\n"+" Muistutus asetettu: "+ "\n"+calendar.time +"\n " + noteLocation.toString()
+                       }
+                        noteString = noteString+ "\n"+" Sijainti "+ "\n" + noteLocation.toString()
+
                         val newNote = Note(noteContents = noteString, imageUri = imgUri!!, location = noteLocation.toString())
                         noteDao.insertNote(newNote)
                         noteString = "" //clear textfield after save
@@ -440,9 +525,6 @@ fun  NewNote(navController:NavController){
                                 selectedTime = selectedTime
                             )
 
-
-
-
                         navController.popBackStack()
                     }
                 }}
@@ -453,20 +535,6 @@ fun  NewNote(navController:NavController){
         }
     }
 
-
-    fun Context.createImageFile(): File {
-        // Create an image file name
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val imageFileName = "JPEG_" + timeStamp + "_"
-        val image = File.createTempFile(
-            imageFileName, /* prefix */
-            ".jpg", /* suffix */
-            externalCacheDir      /* directory */
-        )
-        return image
-
-
-    }
 }
 @Composable
 fun previewImage(uri:Uri){
@@ -515,11 +583,6 @@ fun alarm(context: Context, selectedDate: Long?, selectedTime: TimePickerState?)
         alarmIntent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
-    /*
-    alarmManager.setAlarmClock(
-        AlarmManager.AlarmClockInfo(calendar.timeInMillis, pendingIntent),
-        pendingIntent
-    )*/
     alarmManager.setExactAndAllowWhileIdle(
         AlarmManager.RTC_WAKEUP,
         calendar.timeInMillis,
@@ -530,7 +593,7 @@ fun alarm(context: Context, selectedDate: Long?, selectedTime: TimePickerState?)
 
 //https://developer.android.com/develop/background-work/services/alarms/schedule
 
-
+// borrowed//https://medium.com/@dheerubhadoria/capturing-images-from-camera-in-android-with-jetpack-compose-a-step-by-step-guide-64cd7f52e5de
 fun Context.createImageFile(): File {
     // Create an image file name
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
@@ -542,5 +605,46 @@ fun Context.createImageFile(): File {
     )
     return image
 
+
+}
+//https://medium.com/@munbonecci/how-to-get-your-location-in-jetpack-compose-f085031df4c1 borrowed from here, doesnt work, idc anymore, maybe fixing it later
+/**
+ * Retrieves the current user location asynchronously.
+ *
+ * @param onGetCurrentLocationSuccess Callback function invoked when the current location is successfully retrieved.
+ *        It provides a Pair representing latitude and longitude.
+ * @param onGetCurrentLocationFailed Callback function invoked when an error occurs while retrieving the current location.
+ *        It provides the Exception that occurred.
+ * @param priority Indicates the desired accuracy of the location retrieval. Default is high accuracy.
+ *        If set to false, it uses balanced power accuracy.
+ */
+@SuppressLint("MissingPermission")
+private fun getCurrentLocation(
+    onGetCurrentLocationSuccess: (Pair<Double, Double>) -> Unit,
+    onGetCurrentLocationFailed: (Exception) -> Unit,
+    priority: Boolean = true
+    ,context:Context
+) {
+     val fusedLocationProviderClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+
+    // Determine the accuracy priority based on the 'priority' parameter
+    val accuracy = if (priority) Priority.PRIORITY_HIGH_ACCURACY
+    else Priority.PRIORITY_BALANCED_POWER_ACCURACY
+
+    // Check if location permissions are granted
+        // Retrieve the current location asynchronously
+    if (fusedLocationProviderClient != null) {
+        fusedLocationProviderClient.getCurrentLocation(
+            accuracy, CancellationTokenSource().token,
+        ).addOnSuccessListener { location ->
+            location?.let {
+                // If location is not null, invoke the success callback with latitude and longitude
+                onGetCurrentLocationSuccess(Pair(it.latitude, it.longitude))
+            }
+        }.addOnFailureListener { exception ->
+            // If an error occurs, invoke the failure callback with the exception
+            onGetCurrentLocationFailed(exception)
+        }
+    }
 
 }

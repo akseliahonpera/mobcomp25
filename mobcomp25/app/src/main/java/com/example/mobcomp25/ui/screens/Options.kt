@@ -17,11 +17,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun Options(navController: NavController){
     val db = ApplicationServices.getInstance()?.getDatabase()
-    val dao = db!!.noteDao()
+    val dao = db!!.noteDao() //db is created on application startup
     val context = LocalContext.current
-    if(db==null){
-        Toast.makeText(LocalContext.current,"Database is null",Toast.LENGTH_SHORT).show()
-    }
+
     val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier,
@@ -44,3 +42,5 @@ fun Options(navController: NavController){
         }
     }
 }
+
+//https://coldfusion-example.blogspot.com/2025/01/how-to-safely-delete-all-room-data-in.html
